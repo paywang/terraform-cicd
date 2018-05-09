@@ -28,7 +28,7 @@ environment {
             }
         }
         stage('plan') {
-            steps {{
+            steps {
                 sh  """
                     ${TERRAFORM_CMD} plan -out=tfplan -input=false 
                     """
@@ -44,8 +44,8 @@ environment {
                 sh  """
                     ${TERRAFORM_CMD} apply -lock=false -input=false tfplan
                     """
-}
+			}
         }
-    }
-}
+	
+	}
 }
