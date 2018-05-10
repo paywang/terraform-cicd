@@ -8,7 +8,6 @@ pipeline {
   	timestamps()
   }
 
-
   triggers {
 	pollSCM('*/3 * * * *')
   }
@@ -18,7 +17,6 @@ pipeline {
 //            sh 'rm -rf node-app-terraform'
 //             sh 'git clone https://github.com/goforgold/node-app-terraform.git'
              sh '''
-          //      cd terraform
                 terraform init
                 echo "terraform apply -auto-approve"
            //     terraform apply -auto-approve -var access_key=${AWS_KEY} -var secret_key=${AWS_SECRET}
