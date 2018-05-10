@@ -1,50 +1,36 @@
 pipeline {
-    agent {
-        node {
-            label 'master'
-        }
+  agent any
+
+   options {
+  	timeout(time: 1, unit: 'HOURS')
+  	disableConcurrentBuilds()
+  	buildDiscarder(logRotator(numToKeepStr: '10'))
+  	timestamps()
+  }
+
+  environment {
+    env.PATH += ":/opt/terraform_0.7.13/"
+  }
+  triggers {
+	pollSCM('*/3 * * * *')
+  }
+  stages {
+    stage ('Terraform Plan') {
+        sh 'terraform plan -no-color -out=create.tfplan'
     }
-environment {
-        TERRAFORM_CMD = 'docker run --network host " -w /app -v ${HOME}/.aws:/root/.aws -v ${HOME}/.ssh:/root/.ssh -v `pwd`:/app hashicorp/terraform:light'
+
+    // Optional wait for approval
+    input 'Deploy stack?'
+
+    stage ('Terraform Apply') {
+        sh 'terraform apply -no-color create.tfplan'
     }
-    stages {
-        stage('checkout repo') {
-            steps {
-              checkout scm
-            }
-        }
-        stage('pull latest light terraform image') {
-            steps {
-                sh  """
-                    docker pull hashicorp/terraform:light
-                    """
-            }
-        }
-        stage('init') {
-            steps {
-                sh  """
-                    ${TERRAFORM_CMD} init -backend=true -input=false
-                    """
-            }
-        }
-        stage('plan') {
-            steps {
-                sh  """
-                    ${TERRAFORM_CMD} plan -out=tfplan -input=false 
-                    """
-                script {
-                  timeout(time: 10, unit: 'MINUTES') {
-                    input(id: "Deploy Gate", message: "Deploy ${params.project_name}?", ok: 'Deploy')
-                  }
-                }
-            }
-        }
-        stage('apply') {
-            steps {
-                sh  """
-                    ${TERRAFORM_CMD} apply -lock=false -input=false tfplan
-                    """
-	    }
-        }
-     }
+
+    stage ('Post Run Tests') {
+        echo "Insert your infrastructure test of choice and/or application validation here."
+        sleep 2
+        sh 'terraform show'
+  }
+ }
 }
+
