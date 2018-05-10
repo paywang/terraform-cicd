@@ -8,9 +8,7 @@ pipeline {
   	timestamps()
   }
 
-  environment {
-    env.PATH += ":/opt/terraform_0.7.13/"
-  }
+
   triggers {
 	pollSCM('*/3 * * * *')
   }
