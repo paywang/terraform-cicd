@@ -24,6 +24,7 @@ pipeline {
                 /usr/local/bin/terraform apply -auto-approve
 
              '''
+
        }
      }
    }
